@@ -241,6 +241,8 @@ static struct memory_tier *__node_get_memory_tier(int node)
 #ifdef CONFIG_MIGRATION
 bool node_is_toptier(int node)
 {
+	return (node == 0); // Kevin edit: hardcode node 0 as top tier node for CXL emulation using remote NUMA node
+
 	bool toptier;
 	pg_data_t *pgdat;
 	struct memory_tier *memtier;
@@ -293,6 +295,8 @@ void node_get_allowed_targets(pg_data_t *pgdat, nodemask_t *targets)
  */
 int next_demotion_node(int node)
 {
+  return 1; // Kevin edit: hardcode the node 1 as the destination node during demotion for CXL emulation
+
 	struct demotion_nodes *nd;
 	int target;
 
