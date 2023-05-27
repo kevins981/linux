@@ -2006,6 +2006,45 @@ static int show_numa_map(struct seq_file *m, void *v)
 			seq_printf(m, " N%d=%lu", nid, md->node[nid]);
 
 	seq_printf(m, " kernelpagesize_kB=%lu", vma_kernel_pagesize(vma) >> 10);
+
+  // Kevin edit: for large VMAs, divide up the memory range into 1GB chunks and print 
+  // numa map stats for each chunk.
+  unsigned long vm_area_start;
+  unsigned long vm_area_end;
+  unsigned long vm_area_size;
+  unsigned long vm_chunk_size;
+  struct numa_maps chunk_md;
+
+  vm_area_start = vma->vm_start;
+  vm_area_end = vma->vm_end;
+  vm_area_size = vm_area_end - vm_area_start;
+  vm_chunk_size = 1L*1024L*1024L*1024L; // 1GB
+
+  if (vm_area_size > vm_chunk_size) {
+    unsigned long vm_chunk_start;
+    for (vm_chunk_start = vm_area_start; vm_chunk_start + vm_chunk_size <= vm_area_end; vm_chunk_start += vm_chunk_size) {
+      // New line for each VMA chunk
+	    seq_putc(m, '\n');
+	    seq_printf(m, "  VM chunk: %08lx - %08lx: ", vm_chunk_start, vm_chunk_start + vm_chunk_size);
+      // Collect numa map stat for chunk
+	    memset(&chunk_md, 0, sizeof(chunk_md)); // reset stat struct content
+      walk_page_range_vma(vma, vm_chunk_start, vm_chunk_start + vm_chunk_size, &show_numa_ops, &chunk_md);
+	    for_each_node_state(nid, N_MEMORY)
+	    	if (chunk_md.node[nid])
+	    		seq_printf(m, " N%d=%lu", nid, chunk_md.node[nid]);
+    }
+    if (vm_chunk_start < vm_area_end) {
+      // Print the rest of the memory range
+	    memset(&chunk_md, 0, sizeof(chunk_md)); // reset stat struct content
+	    seq_putc(m, '\n');
+	    seq_printf(m, "  VM chunk: %08lx - %08lx: ", vm_chunk_start, vm_area_end);
+      walk_page_range_vma(vma, vm_chunk_start, vm_area_end, &show_numa_ops, &chunk_md);
+	    for_each_node_state(nid, N_MEMORY)
+	    	if (chunk_md.node[nid])
+	    		seq_printf(m, " N%d=%lu", nid, chunk_md.node[nid]);
+    }
+  }
+  // Kevin edit end
 out:
 	seq_putc(m, '\n');
 	return 0;
