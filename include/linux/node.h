@@ -187,7 +187,8 @@ static inline void register_hugetlbfs_with_node(node_registration_func_t reg,
 
 static inline bool node_is_toptier(int node)
 {
-	return node_state(node, N_CPU);
+	return (node == 0); // Kevin edit: hardcode node 0 as top tier node for CXL emulation using remote NUMA node
+	//return node_state(node, N_CPU);
 }
 
 #endif /* _LINUX_NODE_H_ */
