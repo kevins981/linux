@@ -2251,6 +2251,10 @@ static struct demotion_nodes *node_demotion __read_mostly;
  */
 int next_demotion_node(int node)
 {
+	struct demotion_nodes *nd;
+	unsigned short target_nr, index;
+	int target;
+
   // Kevin edit: hardcode the node 1 as the destination node during demotion for CXL emulation
   if (node == 0) {
     return 1;
@@ -2259,10 +2263,6 @@ int next_demotion_node(int node)
     // Node 1 is terminal on demotion path.
     return NUMA_NO_NODE;
   }
-
-	struct demotion_nodes *nd;
-	unsigned short target_nr, index;
-	int target;
 
 	if (!node_demotion)
 		return NUMA_NO_NODE;

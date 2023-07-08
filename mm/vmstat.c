@@ -1314,6 +1314,7 @@ const char * const vmstat_text[] = {
 	"numa_hint_faults",
 	"numa_hint_faults_local",
 	"numa_pages_migrated",
+  "pgpromote_lru_inactive",
 #endif
 #ifdef CONFIG_MIGRATION
 	"pgmigrate_success",

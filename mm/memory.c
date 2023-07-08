@@ -74,6 +74,7 @@
 #include <linux/perf_event.h>
 #include <linux/ptrace.h>
 #include <linux/vmalloc.h>
+#include <linux/sched/sysctl.h>
 
 #include <trace/events/kmem.h>
 
@@ -4735,9 +4736,10 @@ static vm_fault_t do_numa_page(struct vm_fault *vmf)
 	page_nid = page_to_nid(page);
 
   /* Only migrate pages that are active on non-toptier node */
-  if (numa_promotion_tiered_enabled &&
+  if (sysctl_numa_balancing_mode & NUMA_BALANCING_MEMORY_TIERING &&
   	!node_is_toptier(page_nid) &&
   	!PageActive(page)) {
+  	count_vm_numa_event(PGPROMOTE_LRU_INACTIVE); // Kevin added counter to sanity check that LRU promotion is running
   	count_vm_numa_event(NUMA_HINT_FAULTS);
   	if (page_nid == numa_node_id())
   		count_vm_numa_event(NUMA_HINT_FAULTS_LOCAL);
