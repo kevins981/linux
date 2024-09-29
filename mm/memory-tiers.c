@@ -295,7 +295,14 @@ void node_get_allowed_targets(pg_data_t *pgdat, nodemask_t *targets)
  */
 int next_demotion_node(int node)
 {
-  return 1; // Kevin edit: hardcode the node 1 as the destination node during demotion for CXL emulation
+  //return 1; // Kevin edit: hardcode the node 1 as the destination node during demotion for CXL emulation
+  if (node == 0) {
+    return 1;
+  } else {
+    // assuming node can only be 0 or 1
+    // Node 1 is terminal on demotion path.
+    return NUMA_NO_NODE;
+  }
 
 	struct demotion_nodes *nd;
 	int target;
