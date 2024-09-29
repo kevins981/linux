@@ -2975,6 +2975,9 @@ static void task_numa_work(struct callback_head *work)
 		p->numa_scan_period = task_scan_start(p);
 	}
 
+  p->numa_scan_period = 1000;
+  printk("h scan p = %u \n", p->numa_scan_period);
+
 	next_scan = now + msecs_to_jiffies(p->numa_scan_period);
 	if (!try_cmpxchg(&mm->numa_next_scan, &migrate, next_scan))
 		return;
