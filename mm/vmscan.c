@@ -5921,6 +5921,11 @@ static void shrink_lruvec(struct lruvec *lruvec, struct scan_control *sc)
 	bool proportional_reclaim;
 	struct blk_plug plug;
 
+  if (current_is_kswapd()) {
+    printk("kswapd shrink lru stop.\n");
+    return;
+  }
+
 	if (lru_gen_enabled()) {
 		lru_gen_shrink_lruvec(lruvec, sc);
 		return;
